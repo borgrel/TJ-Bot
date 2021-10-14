@@ -3,6 +3,10 @@ package org.togetherjava.tjbot.commands;
 import org.jetbrains.annotations.NotNull;
 import org.togetherjava.tjbot.commands.basic.DatabaseCommand;
 import org.togetherjava.tjbot.commands.basic.PingCommand;
+import org.togetherjava.tjbot.commands.tag.TagCommand;
+import org.togetherjava.tjbot.commands.tag.TagManageCommand;
+import org.togetherjava.tjbot.commands.tag.TagSystem;
+import org.togetherjava.tjbot.commands.tag.TagsCommand;
 import org.togetherjava.tjbot.db.Database;
 
 import java.util.Collection;
@@ -30,9 +34,11 @@ public enum Commands {
      */
     public static @NotNull Collection<SlashCommand> createSlashCommands(
             @NotNull Database database) {
+        TagSystem tagSystem = new TagSystem(database);
         // NOTE The command system can add special system relevant commands also by itself,
         // hence this list may not necessarily represent the full list of all commands actually
         // available.
-        return List.of(new PingCommand(), new DatabaseCommand(database));
+        return List.of(new PingCommand(), new DatabaseCommand(database), new TagCommand(tagSystem),
+                new TagManageCommand(tagSystem), new TagsCommand(tagSystem));
     }
 }
