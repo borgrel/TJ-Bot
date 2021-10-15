@@ -1,15 +1,17 @@
 package org.togetherjava.tjbot.commands;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.NotNull;
-import org.togetherjava.tjbot.commands.system.ComponentIds;
+import org.togetherjava.tjbot.commands.componentids.ComponentId;
+import org.togetherjava.tjbot.commands.componentids.ComponentIdGenerator;
+import org.togetherjava.tjbot.commands.componentids.Lifespan;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Adapter implementation of a {@link SlashCommand}. The minimal setup only requires implementation
@@ -34,7 +36,7 @@ import java.util.List;
  * <p>
  * Some example commands are available in {@link org.togetherjava.tjbot.commands.basic}. A minimal
  * setup would consist of a class like
- * 
+ *
  * <pre>
  * {
  *     &#64;code
@@ -50,7 +52,7 @@ import java.util.List;
  *     }
  * }
  * </pre>
- * 
+ * <p>
  * and registration of an instance of that class in {@link Commands}.
  */
 public abstract class SlashCommandAdapter implements SlashCommand {
@@ -58,6 +60,7 @@ public abstract class SlashCommandAdapter implements SlashCommand {
     private final String description;
     private final SlashCommandVisibility visibility;
     private final CommandData data;
+    private ComponentIdGenerator componentIdGenerator;
 
     /**
      * Creates a new adapter with the given data.
@@ -97,6 +100,11 @@ public abstract class SlashCommandAdapter implements SlashCommand {
         return data;
     }
 
+    @Override
+    public final void acceptComponentIdGenerator(@NotNull ComponentIdGenerator generator) {
+        componentIdGenerator = generator;
+    }
+
     @SuppressWarnings("NoopMethodInAbstractClass")
     @Override
     public void onButtonClick(@NotNull ButtonClickEvent event, @NotNull List<String> args) {
@@ -124,10 +132,12 @@ public abstract class SlashCommandAdapter implements SlashCommand {
      * @return the generated component ID
      */
     public final @NotNull String generateComponentId(@NotNull String... args) {
-        try {
-            return ComponentIds.generate(getName(), Arrays.asList(args));
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return generateComponentId(Lifespan.PERMANENT, args);
+    }
+
+    public final @NotNull String generateComponentId(@NotNull Lifespan lifespan,
+            @NotNull String... args) {
+        return Objects.requireNonNull(componentIdGenerator)
+            .generate(new ComponentId(getName(), Arrays.asList(args)), lifespan);
     }
 }
