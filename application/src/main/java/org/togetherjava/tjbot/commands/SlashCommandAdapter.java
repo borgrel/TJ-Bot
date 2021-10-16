@@ -24,7 +24,7 @@ import java.util.Objects;
  * <p>
  * <p>
  * The adapter manages all command related data itself, which can be provided during construction
- * (see {@link #SlashCommandAdapter(String, String, SlashCommandVisibility)}. In order to add
+ * (see {@link #SlashCommandAdapter(String, String, SlashCommandVisibility)}). In order to add
  * options, subcommands or similar command configurations, use {@link #getData()} and mutate the
  * returned data object (see {@link CommandData} for details on how to work with this class).
  * <p>
@@ -131,7 +131,8 @@ public abstract class SlashCommandAdapter implements SlashCommand {
      * @param args the extra arguments that should be part of the ID
      * @return the generated component ID
      */
-    public final @NotNull String generateComponentId(@NotNull String... args) {
+    @SuppressWarnings("OverloadedVarargsMethod")
+    protected final @NotNull String generateComponentId(@NotNull String... args) {
         return generateComponentId(Lifespan.REGULAR, args);
     }
 
@@ -147,7 +148,8 @@ public abstract class SlashCommandAdapter implements SlashCommand {
      * @param args the extra arguments that should be part of the ID
      * @return the generated component ID
      */
-    public final @NotNull String generateComponentId(@NotNull Lifespan lifespan,
+    @SuppressWarnings({"OverloadedVarargsMethod", "WeakerAccess"})
+    protected final @NotNull String generateComponentId(@NotNull Lifespan lifespan,
             @NotNull String... args) {
         return Objects.requireNonNull(componentIdGenerator)
             .generate(new ComponentId(getName(), Arrays.asList(args)), lifespan);
